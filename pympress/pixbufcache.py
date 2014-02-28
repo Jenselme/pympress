@@ -35,13 +35,14 @@ When used, the prerendering is done asynchronously in another thread.
    documents.
 """
 
-import Queue
+import queue
 import threading
 import time
 
-import pygtk
-pygtk.require('2.0')
-import gtk
+#import pygtk
+#pygtk.require('2.0')
+#import gtk
+from gi.repository import Gtk as gtk
 
 class PixbufCache:
     """Pages caching and prerendering made (almost) easy."""
@@ -106,7 +107,7 @@ class PixbufCache:
         self.locks[widget_name] = threading.Lock()
         self.threads[widget_name] = threading.Thread(target=self.renderer, args=(widget_name,))
         self.threads[widget_name].daemon = True
-        self.jobs[widget_name] = Queue.Queue(0)
+        self.jobs[widget_name] = queue.Queue(0)
         self.threads[widget_name].start()
 
     def set_widget_type(self, widget_name, type):
@@ -239,7 +240,7 @@ class PixbufCache:
                 page = self.doc.page(page_nb)
                 pw, ph = page.get_size(type)
 
-            print "Prerendering page %d for widget %s type %d" % (page_nb+1, widget_name, type)
+            print("Prerendering page %d for widget %s type %d" % (page_nb+1, widget_name, type))
 
             with gtk.gdk.lock:
                 # Render to a pixmap

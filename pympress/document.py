@@ -34,7 +34,8 @@ elsewhere).
 
 import sys
 
-import poppler
+#import poppler
+from gi.repository import Poppler as poppler
 
 import pympress.ui
 import pympress.util
@@ -271,7 +272,7 @@ class Document:
             print >>sys.stderr, "Hyperlink support not found in poppler-python -- be sure to use at least bazaar rev. 62 to have them working"
 
         # Open PDF file
-        self.doc = poppler.document_new_from_file(uri, None)
+        self.doc = poppler.Document.new_from_file(uri, None)
 
         # Pages number
         self.nb_pages = self.doc.get_n_pages()

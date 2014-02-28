@@ -22,12 +22,18 @@
 -------------------------------------------------
 """
 
-import pygtk
-pygtk.require('2.0')
-import gtk
+#import pygtk
+#pygtk.require('2.0')
+#import gtk
+from gi.repository import Gtk as gtk
 import pkg_resources
 import os, os.path, sys
-import poppler
+#import poppler
+from gi.repository import Poppler as poppler
+
+#FIXME:
+from gi.repository import Gdk
+import os
 
 def load_icons():
     """
@@ -37,19 +43,20 @@ def load_icons():
     :return: loaded icons
     :rtype: list of :class:`gtk.gdk.Pixbuf`
     """
-    
-    req = pkg_resources.Requirement.parse("pympress")
-    icon_names = pkg_resources.resource_listdir(req, "share/pixmaps")
+
+    #FIXME: req = pkg_resources.Requirement.parse("pympress")
+    #FIXME: icon_names = pkg_resources.resource_listdir(req, "share/pixmaps")
+    icon_names = os.listdir("share/pixmaps")
     icons = []
     for icon_name in icon_names:
         if os.path.splitext(icon_name)[1].lower() != ".png": continue
-        icon_fn = pkg_resources.resource_filename(req, "share/pixmaps/%s" % icon_name)
+        #FIXME: icon_fn = pkg_resources.resource_filename(req, "share/pixmaps/%s" % icon_name)
+        icon_fn = icon_name
         try:
-            icon_pixbuf = gtk.gdk.pixbuf_new_from_file(icon_fn)
+            icon_pixbuf = Gdk.pixbuf_new_from_file(icon_fn)
             icons.append(icon_pixbuf)
-        except Exception, e:
-            print e
-    
+        except Exception as e:
+            print(e)
     return icons
 
 

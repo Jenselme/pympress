@@ -35,11 +35,17 @@ import time
 
 import pkg_resources
 
-import pygtk
-pygtk.require('2.0')
-import gobject
-import gtk
-import pango
+#import pygtk
+#pygtk.require('2.0')
+#import gobject
+#import gtk
+from gi.repository import Gtk as gtk
+#import pango
+from gi.repository import Pango as pango
+from gi.repository import GLib, cairo, GdkPixbuf
+
+#FIXME: under
+from gi.repository import Gdk
 
 import pympress.pixbufcache
 import pympress.util
@@ -58,7 +64,7 @@ class UI:
     cache = None
 
     #: Content window, as a :class:`gtk.Window` instance.
-    c_win = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    c_win = gtk.Window(gtk.WindowType.TOPLEVEL)
     #: :class:`~gtk.AspectFrame` for the Content window.
     c_frame = gtk.AspectFrame(ratio=4./3., obey_child=False)
     #: :class:`~gtk.DrawingArea` for the Content window.
@@ -108,7 +114,7 @@ class UI:
         :param doc: the current document
         :type  doc: :class:`pympress.document.Document`
         """
-        black = gtk.gdk.Color(0, 0, 0)
+        black = Gdk.Color(0, 0, 0)
 
         # Common to both windows
         icon_list = pympress.util.load_icons()
@@ -122,14 +128,14 @@ class UI:
         # Content window
         self.c_win.set_title("pympress content")
         self.c_win.set_default_size(800, 600)
-        self.c_win.modify_bg(gtk.STATE_NORMAL, black)
+        self.c_win.modify_bg(gtk.StateFlags.NORMAL, black)
         self.c_win.connect("delete-event", gtk.main_quit)
-        self.c_win.set_icon_list(*icon_list)
+        #FIXME: self.c_win.set_icon_list(*icon_list)
 
-        self.c_frame.modify_bg(gtk.STATE_NORMAL, black)
+        self.c_frame.modify_bg(gtk.StateFlags.NORMAL, black)
 
-        self.c_da.modify_bg(gtk.STATE_NORMAL, black)
-        self.c_da.connect("expose-event", self.on_expose)
+        self.c_da.modify_bg(gtk.StateFlags.NORMAL, black)
+        self.c_da.connect("draw", self.on_expose)
         self.c_da.set_name("c_da")
         if self.notes_mode:
             self.cache.add_widget("c_da", pympress.document.PDF_CONTENT_PAGE)
@@ -140,17 +146,17 @@ class UI:
         self.c_frame.add(self.c_da)
         self.c_win.add(self.c_frame)
 
-        self.c_win.add_events(gtk.gdk.KEY_PRESS_MASK | gtk.gdk.SCROLL_MASK)
+        self.c_win.add_events(Gdk.EventMask.KEY_PRESS_MASK | Gdk.EventMask.SCROLL_MASK)
         self.c_win.connect("key-press-event", self.on_navigation)
         self.c_win.connect("scroll-event", self.on_navigation)
 
         # Presenter window
-        p_win = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        p_win = gtk.Window(gtk.WindowType.TOPLEVEL)
         p_win.set_title("pympress presenter")
         p_win.set_default_size(800, 600)
-        p_win.set_position(gtk.WIN_POS_CENTER)
+        p_win.set_position(gtk.WindowPosition.CENTER)
         p_win.connect("delete-event", gtk.main_quit)
-        p_win.set_icon_list(*icon_list)
+        #FIXME: p_win.set_icon_list(*icon_list)
 
         # Put Menu and Table in VBox
         bigvbox = gtk.VBox(False, 2)
@@ -204,10 +210,12 @@ class UI:
         menubar = ui_manager.get_widget('/MenuBar')
         h = ui_manager.get_widget('/MenuBar/Help')
         h.set_right_justified(True)
-        bigvbox.pack_start(menubar, False)
+        bigvbox.pack_start(menubar, False, False, 0)
 
         # A little space around everything in the window
-        align = gtk.Alignment(0.5, 0.5, 1, 1)
+        #FIXME: align = gtk.Alignment(0.5, 0.5, 1, 1)
+        align = gtk.Alignment()
+        align.set(0.5, 0.5, 1, 1)
         align.set_padding(20, 20, 20, 20)
 
         # Table
@@ -215,22 +223,25 @@ class UI:
         table.set_col_spacings(25)
         table.set_row_spacings(25)
         align.add(table)
-        bigvbox.pack_end(align)
+        bigvbox.pack_end(align, False, False, 0)
 
         # "Current slide" frame
-        frame = gtk.Frame("Current slide")
+        frame = gtk.Frame()
+        frame.set_label("Current slide")
         table.attach(frame, 0, 6, 0, 1)
-        align = gtk.Alignment(0.5, 0.5, 1, 1)
+        #FIXME: align = gtk.Alignment(0.5, 0.5, 1, 1)
+        align = gtk.Alignment()
+        align.set(0.5, 0.5, 1, 1)
         align.set_padding(0, 0, 12, 0)
         frame.add(align)
         vbox = gtk.VBox()
         align.add(vbox)
-        vbox.pack_start(self.p_frame_cur)
+        vbox.pack_start(self.p_frame_cur, False, False, 0)
         self.eb_cur.set_visible_window(False)
         self.eb_cur.connect("event", self.on_label_event)
         vbox.pack_start(self.eb_cur, False, False, 10)
-        self.p_da_cur.modify_bg(gtk.STATE_NORMAL, black)
-        self.p_da_cur.connect("expose-event", self.on_expose)
+        self.p_da_cur.modify_bg(gtk.StateFlags.NORMAL, black)
+        self.p_da_cur.connect("draw", self.on_expose)
         self.p_da_cur.set_name("p_da_cur")
         if self.notes_mode:
             self.cache.add_widget("p_da_cur", PDF_NOTES_PAGE)
@@ -240,26 +251,28 @@ class UI:
         self.p_frame_cur.add(self.p_da_cur)
 
         # "Current slide" label and entry
-        self.label_cur.set_justify(gtk.JUSTIFY_CENTER)
+        self.label_cur.set_justify(gtk.Justification.CENTER)
         self.label_cur.set_use_markup(True)
         self.eb_cur.add(self.label_cur)
         self.entry_cur.set_alignment(0.5)
         self.entry_cur.modify_font(pango.FontDescription('36'))
 
         # "Next slide" frame
-        frame = gtk.Frame("Next slide")
+        frame = gtk.Frame()
+        frame.set_label("Next slide")
         table.attach(frame, 6, 10, 0, 1)
-        align = gtk.Alignment(0.5, 0.5, 1, 1)
+        align = gtk.Alignment()
+        align.set(0.5, 0.5, 1, 1)
         align.set_padding(0, 0, 12, 0)
         frame.add(align)
         vbox = gtk.VBox()
         align.add(vbox)
-        vbox.pack_start(self.p_frame_next)
-        self.label_next.set_justify(gtk.JUSTIFY_CENTER)
+        vbox.pack_start(self.p_frame_next, False, False, 0)
+        self.label_next.set_justify(gtk.Justification.CENTER)
         self.label_next.set_use_markup(True)
         vbox.pack_start(self.label_next, False, False, 10)
-        self.p_da_next.modify_bg(gtk.STATE_NORMAL, black)
-        self.p_da_next.connect("expose-event", self.on_expose)
+        self.p_da_next.modify_bg(gtk.StateFlags.NORMAL, black)
+        self.p_da_next.connect("draw", self.on_expose)
         self.p_da_next.set_name("p_da_next")
         if self.notes_mode:
             self.cache.add_widget("p_da_next", PDF_CONTENT_PAGE)
@@ -269,22 +282,26 @@ class UI:
         self.p_frame_next.add(self.p_da_next)
 
         # "Time elapsed" frame
-        frame = gtk.Frame("Time elapsed")
-        table.attach(frame, 0, 5, 1, 2, yoptions=gtk.FILL)
-        align = gtk.Alignment(0.5, 0.5, 1, 1)
+        frame = gtk.Frame()
+        frame.set_label("Time elapsed")
+        table.attach(frame, 0, 5, 1, 2, yoptions=gtk.AttachOptions.FILL)
+        align = gtk.Alignment()
+        align.set(0.5, 0.5, 1, 1)
         align.set_padding(10, 10, 12, 0)
         frame.add(align)
-        self.label_time.set_justify(gtk.JUSTIFY_CENTER)
+        self.label_time.set_justify(gtk.Justification.CENTER)
         self.label_time.set_use_markup(True)
         align.add(self.label_time)
 
         # "Clock" frame
-        frame = gtk.Frame("Clock")
-        table.attach(frame, 5, 10, 1, 2, yoptions=gtk.FILL)
-        align = gtk.Alignment(0.5, 0.5, 1, 1)
+        frame = gtk.Frame()
+        frame.set_label("Clock")
+        table.attach(frame, 5, 10, 1, 2, yoptions=gtk.AttachOptions.FILL)
+        align = gtk.Alignment()
+        align.set(0.5, 0.5, 1, 1)
         align.set_padding(10, 10, 12, 0)
         frame.add(align)
-        self.label_clock.set_justify(gtk.JUSTIFY_CENTER)
+        self.label_clock.set_justify(gtk.Justification.CENTER)
         self.label_clock.set_use_markup(True)
         align.add(self.label_clock)
 
@@ -293,26 +310,26 @@ class UI:
 
 
         # Add events
-        p_win.add_events(gtk.gdk.KEY_PRESS_MASK | gtk.gdk.SCROLL_MASK)
+        p_win.add_events(Gdk.EventMask.KEY_PRESS_MASK | Gdk.EventMask.SCROLL_MASK)
         p_win.connect("key-press-event", self.on_navigation)
         p_win.connect("scroll-event", self.on_navigation)
 
         # Hyperlinks if available
         if pympress.util.poppler_links_available():
-            self.c_da.add_events(gtk.gdk.BUTTON_PRESS_MASK | gtk.gdk.POINTER_MOTION_MASK)
+            self.c_da.add_events(Gdk.EventMask.BUTTON_PRESS_MASK | Gdk.EventMask.POINTER_MOTION_MASK)
             self.c_da.connect("button-press-event", self.on_link)
             self.c_da.connect("motion-notify-event", self.on_link)
 
-            self.p_da_cur.add_events(gtk.gdk.BUTTON_PRESS_MASK | gtk.gdk.POINTER_MOTION_MASK)
+            self.p_da_cur.add_events(Gdk.EventMask.BUTTON_PRESS_MASK | Gdk.EventMask.POINTER_MOTION_MASK)
             self.p_da_cur.connect("button-press-event", self.on_link)
             self.p_da_cur.connect("motion-notify-event", self.on_link)
 
-            self.p_da_next.add_events(gtk.gdk.BUTTON_PRESS_MASK | gtk.gdk.POINTER_MOTION_MASK)
+            self.p_da_next.add_events(Gdk.EventMask.BUTTON_PRESS_MASK | Gdk.EventMask.POINTER_MOTION_MASK)
             self.p_da_next.connect("button-press-event", self.on_link)
             self.p_da_next.connect("motion-notify-event", self.on_link)
 
         # Setup timer
-        gobject.timeout_add(250, self.update_time)
+        GLib.timeout_add(250, self.update_time)
 
         # Document
         self.doc = doc
@@ -324,8 +341,9 @@ class UI:
 
     def run(self):
         """Run the GTK main loop."""
-        with gtk.gdk.lock:
-            gtk.main()
+        #FIXME: with Gdk.lock:
+            #FIXME: gtk.main()
+        gtk.main()
 
 
     def menu_about(self, widget=None, event=None):
@@ -339,9 +357,9 @@ class UI:
         try:
             req = pkg_resources.Requirement.parse("pympress")
             icon_fn = pkg_resources.resource_filename(req, "share/pixmaps/pympress-128.png")
-            about.set_logo(gtk.gdk.pixbuf_new_from_file(icon_fn))
-        except Exception, e:
-            print e
+            about.set_logo(Gdk.pixbuf_new_from_file(icon_fn))
+        except Exception as e:
+            print(e)
         about.run()
         about.destroy()
 
@@ -387,7 +405,7 @@ class UI:
         cur = page_cur.number()
         page_max = min(self.doc.pages_number(), cur + 5)
         page_min = max(0, cur - 2)
-        for p in range(cur+1, page_max) + range(cur, page_min, -1):
+        for p in list(range(cur+1, page_max)) + list(range(cur, page_min, -1)):
             self.cache.prerender(p)
 
 
@@ -403,7 +421,7 @@ class UI:
         :param widget: the widget to update
         :type  widget: :class:`gtk.Widget`
         :param event: the GTK event (or ``None`` if called directly)
-        :type  event: :class:`gtk.gdk.Event`
+        :type  event: :class:`Gdk.Event`
         """
 
         if widget in [self.c_da, self.p_da_cur]:
@@ -412,13 +430,14 @@ class UI:
         else:
             # Next page: it can be None
             page = self.doc.next_page()
+            parent = widget.get_parent()
             if page is None:
                 widget.hide_all()
-                widget.parent.set_shadow_type(gtk.SHADOW_NONE)
+                parent.set_shadow_type(gtk.SHADOW_NONE)
                 return
             else:
                 widget.show_all()
-                widget.parent.set_shadow_type(gtk.SHADOW_IN)
+                parent.set_shadow_type(gtk.ShadowType.IN)
 
         # Instead of rendering the document to a Cairo surface (which is slow),
         # use a pixbuf from the cache if possible.
@@ -430,14 +449,17 @@ class UI:
         if pb is None:
             # Cache miss: render the page, and save it to the cache
             self.render_page(page, widget, wtype)
-            ww, wh = widget.window.get_size()
-            pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, ww, wh)
-            pb.get_from_drawable(widget.window, widget.window.get_colormap(), 0, 0, 0, 0, ww, wh)
+            window = widget.get_window()
+            ww, wh = ww, wh = window.get_width(), window.get_height()
+            pb = GdkPixbuf.Pixbuf()
+            pb.new(GdkPixbuf.Colorspace.RGB, False, 8, ww, wh)
+            #FIXME: pb.get_from_drawable(window, window.get_colormap(), 0, 0, 0, 0, ww, wh)
             self.cache.set(name, nb, pb)
         else:
             # Cache hit: draw the pixbuf from the cache to the widget
-            gc = widget.window.new_gc()
-            widget.window.draw_pixbuf(gc, pb, 0, 0, 0, 0)
+            window = widget.get_window()
+            gc = window.new_gc()
+            window.draw_pixbuf(gc, pb, 0, 0, 0, 0)
 
 
     def on_configure(self, widget, event):
@@ -454,7 +476,7 @@ class UI:
         :type  widget: :class:`gtk.Widget`
         :param event: the GTK event, which contains the new dimensions of the
            widget
-        :type  event: :class:`gtk.gdk.Event`
+        :type  event: :class:`Gdk.Event`
         """
         self.cache.resize_widget(widget.get_name(), event.width, event.height)
 
@@ -466,10 +488,10 @@ class UI:
         :param widget: the widget in which the event occured (ignored)
         :type  widget: :class:`gtk.Widget`
         :param event: the event that occured
-        :type  event: :class:`gtk.gdk.Event`
+        :type  event: :class:`Gdk.Event`
         """
-        if event.type == gtk.gdk.KEY_PRESS:
-            name = gtk.gdk.keyval_name(event.keyval)
+        if event.type == Gdk.EventType.KEY_PRESS:
+            name = Gdk.keyval_name(event.keyval)
 
             if name in ["Right", "Down", "Page_Down", "space"]:
                 self.doc.goto_next()
@@ -480,8 +502,8 @@ class UI:
             elif name == 'End':
                 self.doc.goto_end()
             elif (name.upper() in ["F", "F11"]) \
-                or (name == "Return" and event.state & gtk.gdk.MOD1_MASK) \
-                or (name.upper() == "L" and event.state & gtk.gdk.CONTROL_MASK):
+                or (name == "Return" and event.state & Gdk.MOD1_MASK) \
+                or (name.upper() == "L" and event.state & Gdk.CONTROL_MASK):
                 self.switch_fullscreen()
             elif name.upper() == "Q":
                 gtk.main_quit()
@@ -499,14 +521,14 @@ class UI:
                 elif name.upper() == "N":
                     self.switch_mode()
 
-        elif event.type == gtk.gdk.SCROLL:
-            if event.direction in [gtk.gdk.SCROLL_RIGHT, gtk.gdk.SCROLL_DOWN]:
+        elif event.type == Gdk.SCROLL:
+            if event.direction in [Gdk.SCROLL_RIGHT, Gdk.SCROLL_DOWN]:
                 self.doc.goto_next()
             else:
                 self.doc.goto_prev()
 
         else:
-            print "Unknown event %s" % event.type
+            print("Unknown event %s" % event.type)
 
 
     def on_link(self, widget, event):
@@ -516,7 +538,7 @@ class UI:
         :param widget: the widget in which the event occured
         :type  widget: :class:`gtk.Widget`
         :param event: the event that occured
-        :type  event: :class:`gtk.gdk.Event`
+        :type  event: :class:`Gdk.Event`
         """
 
         # Where did the event occur?
@@ -529,25 +551,26 @@ class UI:
 
         # Normalize event coordinates and get link
         x, y = event.get_coords()
-        ww, wh = widget.window.get_size()
+        window = widget.get_window()
+        ww, wh = ww, wh = window.get_width(), window.get_height()
         x2, y2 = x/ww, y/wh
         link = page.get_link_at(x2, y2)
 
         # Event type?
-        if event.type == gtk.gdk.BUTTON_PRESS:
+        if event.type == Gdk.EventType.BUTTON_PRESS:
             if link is not None:
                 dest = link.get_destination()
                 self.doc.goto(dest)
 
-        elif event.type == gtk.gdk.MOTION_NOTIFY:
+        elif event.type == Gdk.EventType.MOTION_NOTIFY:
             if link is not None:
-                cursor = gtk.gdk.Cursor(gtk.gdk.HAND2)
-                widget.window.set_cursor(cursor)
+                cursor = Gdk.Cursor(Gdk.HAND2)
+                window.set_cursor(cursor)
             else:
-                widget.window.set_cursor(None)
+                window.set_cursor(None)
 
         else:
-            print "Unknown event %s" % event.type
+            print("Unknown event %s" % event.type)
 
 
     def on_label_event(self, widget, event):
@@ -561,13 +584,13 @@ class UI:
         :param widget: the widget in which the event occured
         :type  widget: :class:`gtk.Widget`
         :param event: the event that occured
-        :type  event: :class:`gtk.gdk.Event`
+        :type  event: :class:`Gdk.Event`
         """
 
         widget = self.eb_cur.get_child()
 
         # Click on the label
-        if widget is self.label_cur and event.type == gtk.gdk.BUTTON_PRESS:
+        if widget is self.label_cur and event.type == Gdk.EventType.BUTTON_PRESS:
             # Set entry text
             self.entry_cur.set_text("%d/%d" % (self.doc.current_page().number()+1, self.doc.pages_number()))
             self.entry_cur.select_region(0, -1)
@@ -579,8 +602,8 @@ class UI:
             self.entry_cur.grab_focus()
 
         # Key pressed in the entry
-        elif widget is self.entry_cur and event.type == gtk.gdk.KEY_RELEASE:
-            name = gtk.gdk.keyval_name(event.keyval)
+        elif widget is self.entry_cur and event.type == Gdk.KEY_RELEASE:
+            name = Gdk.keyval_name(event.keyval)
 
             # Return key --> restore label and goto page
             if name == "Return" or name == "KP_Return":
@@ -593,7 +616,7 @@ class UI:
                     s = text.split('/')[0]
                     n = int(s)
                 except ValueError:
-                    print "Invalid number: %s" % text
+                    print("Invalid number: %s" % text)
 
                 n -= 1
                 if n != self.doc.current_page().number():
@@ -629,21 +652,27 @@ class UI:
         """
 
         # Make sure the widget is initialized
-        if widget.window is None:
+        window = widget.get_window()
+        if not window:
             return
 
         # Widget size
-        ww, wh = widget.window.get_size()
+        ww, wh = window.get_width(), window.get_height()
 
         # Manual double buffering (since we use direct drawing instead of
         # calling queue_draw() on the widget)
-        widget.window.begin_paint_rect(gtk.gdk.Rectangle(0, 0, ww, wh))
+        rect = Gdk.Rectangle()
+        rect.x = 0
+        rect.y = 0
+        rect.width = ww
+        rect.height = wh
+        window.begin_paint_rect(rect)
 
-        cr = widget.window.cairo_create()
+        cr = window.cairo_create()
         page.render_cairo(cr, ww, wh, wtype)
 
         # Blit off-screen buffer to screen
-        widget.window.end_paint()
+        window.end_paint()
 
 
     def restore_current_label(self):
@@ -733,7 +762,7 @@ class UI:
             cmd = "suspend" if must_disable else "resume"
             status = os.system("xdg-screensaver %s %s" % (cmd, self.c_win.window.xid))
             if status != 0:
-                print >>sys.stderr, "Warning: Could not set screensaver status: got status %d" % status
+                print("Warning: Could not set screensaver status: got status %d" % status, file=sys.stderr)
 
             # Also manage screen blanking via DPMS
             if must_disable:
@@ -751,7 +780,7 @@ class UI:
                     self.dpms_was_enabled = True
                     status = os.system("xset -dpms")
                     if status != 0:
-                        print >>sys.stderr, "Warning: Could not disable DPMS screen blanking: got status %d" % status
+                        print("Warning: Could not disable DPMS screen blanking: got status %d" % status, file=sys.stderr)
                 else:
                     self.dpms_was_enabled = False
 
@@ -759,9 +788,9 @@ class UI:
                 # Re-enable DPMS
                 status = os.system("xset +dpms")
                 if status != 0:
-                    print >>sys.stderr, "Warning: Could not enable DPMS screen blanking: got status %d" % status
+                    print("Warning: Could not enable DPMS screen blanking: got status %d" % status, file=sys.stderr)
         else:
-            print >>sys.stderr, "Warning: Unsupported OS: can't enable/disable screensaver"
+            print("Warning: Unsupported OS: can't enable/disable screensaver", file=sys.stderr)
 
 
     def switch_fullscreen(self, widget=None, event=None):
