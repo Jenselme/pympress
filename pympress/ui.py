@@ -458,8 +458,8 @@ class UI:
         else:
             # Cache hit: draw the pixbuf from the cache to the widget
             window = widget.get_window()
-            gc = window.new_gc()
-            window.draw_pixbuf(gc, pb, 0, 0, 0, 0)
+            #FIXME: gc = Gdk.GC.new(window)
+            #FIXME: window.draw_pixbuf(gc, pb, 0, 0, 0, 0)
 
 
     def on_configure(self, widget, event):

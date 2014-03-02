@@ -43,6 +43,8 @@ import time
 #pygtk.require('2.0')
 #import gtk
 from gi.repository import Gtk as gtk
+from gi.repository import Gdk
+from gi.repository import GdkPixbuf
 
 class PixbufCache:
     """Pages caching and prerendering made (almost) easy."""
@@ -240,21 +242,23 @@ class PixbufCache:
                 page = self.doc.page(page_nb)
                 pw, ph = page.get_size(type)
 
-            print("Prerendering page %d for widget %s type %d" % (page_nb+1, widget_name, type))
+            print(("Prerendering page %d for widget %s type %d" % (page_nb+1, widget_name, type)))
 
-            with gtk.gdk.lock:
+            #FIXME: Deprecated since version 3.6: All GDK and GTK+ calls should be made from the main thread
+            # http://lazka.github.io/pgi-docs/api/Gdk_3.0/functions.html?highlight=thread#Gdk.threads_enter
+            # with Gdk.lock:
                 # Render to a pixmap
-                pixmap = gtk.gdk.Pixmap(None, ww, wh, 24) # FIXME: 24 or 32?
-                cr = pixmap.cairo_create()
-                page.render_cairo(cr, ww, wh, type)
+                #pixmap = Gdk.Pixmap(None, ww, wh, 24) # FIXME: 24 or 32?
+                #cr = pixmap.cairo_create()
+                #page.render_cairo(cr, ww, wh, type)
 
-                # Convert pixmap to pixbuf
-                pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, ww, wh)
-                pixbuf.get_from_drawable(pixmap, gtk.gdk.colormap_get_system(),
-                                         0, 0, 0, 0, ww, wh)
+                ## Convert pixmap to pixbuf
+                #pixbuf = GdkPixbuf(Gdk.Colorspace.RGB, False, 8, ww, wh)
+                #pixbuf.get_from_drawable(pixmap, Gdk.colormap_get_system(),
+                                         #0, 0, 0, 0, ww, wh)
 
-            # Save if possible and necessary
-            with self.locks[widget_name]:
-                pc = self.pixbuf_cache[widget_name]
-                if (ww, wh) == self.pixbuf_size[widget_name] and not page_nb in pc:
-                    pc[page_nb] = pixbuf
+            ## Save if possible and necessary
+            #with self.locks[widget_name]:
+                #pc = self.pixbuf_cache[widget_name]
+                #if (ww, wh) == self.pixbuf_size[widget_name] and not page_nb in pc:
+                    #pc[page_nb] = pixbuf
