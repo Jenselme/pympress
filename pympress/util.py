@@ -29,6 +29,7 @@ from gi.repository import Poppler
 from gi.repository import Gdk
 import os
 
+
 def load_icons():
     """
     Load pympress icons from the pixmaps directory (usually
@@ -43,7 +44,8 @@ def load_icons():
     icon_names = os.listdir("share/pixmaps")
     icons = []
     for icon_name in icon_names:
-        if os.path.splitext(icon_name)[1].lower() != ".png": continue
+        if os.path.splitext(icon_name)[1].lower() != ".png":
+            continue
         #FIXME: icon_fn = pkg_resources.resource_filename(req, "share/pixmaps/%s" % icon_name)
         icon_fn = icon_name
         try:

@@ -41,19 +41,9 @@ import pympress.util
 
 from pympress.ui import PDF_REGULAR, PDF_NOTES_PAGE
 
+
 class Link:
     """This class encapsulates one hyperlink of the document."""
-
-    #: First x coordinate of the link rectangle, as a float number
-    x1 = None
-    #: First y coordinate of the link rectangle, as a float number
-    y1 = None
-    #: Second x coordinate of the link rectangle, as a float number
-    x2 = None
-    #: Second y coordinate of the link rectangle, as a float number
-    y2 = None
-    #: Page number of the link destination
-    dest = None
 
     def __init__(self, x1, y1, x2, y2, dest):
         """
@@ -83,7 +73,7 @@ class Link:
            rectangle, ``False`` otherwise
         :rtype: boolean
         """
-        return ( (self.x1 <= x) and (x <= self.x2) and (self.y1 <= y) and (y <= self.y2) )
+        return (self.x1 <= x) and (x <= self.x2) and (self.y1 <= y) and (y <= self.y2)
 
     def get_destination(self):
         """
@@ -145,7 +135,8 @@ class Page:
                     # Page numbering starts at 0
                     page_num -= 1
 
-                    my_link = Link(link.area.x1, link.area.y1, link.area.x2, link.area.y2, page_num)
+                    my_link = Link(link.area.x1, link.area.y1, link.area.x2,
+                                    link.area.y2, page_num)
                     self.links.append(my_link)
 
     def number(self):
@@ -183,9 +174,9 @@ class Page:
         :rtype: (float, float)
         """
         if type == PDF_REGULAR:
-            return (self.pw, self.ph)
+            return self.pw, self.ph
         else:
-            return (self.pw/2., self.ph)
+            return self.pw/2., self.ph
 
     def get_aspect_ratio(self, type=PDF_REGULAR):
         """Get the page aspect ratio.
@@ -266,10 +257,6 @@ class Document:
         :type  page: integer
         """
 
-        # Check poppler-python version -- we need Bazaar rev. 62
-        if not pympress.util.poppler_links_available():
-            print >>sys.stderr, "Hyperlink support not found in poppler-python -- be sure to use at least bazaar rev. 62 to have them working"
-
         # Open PDF file
         self.doc = Poppler.Document.new_from_file(uri, None)
 
@@ -319,7 +306,6 @@ class Document:
             self.pages_cache[number] = Page(self.doc, number)
         return self.pages_cache[number]
 
-
     def current_page(self):
         """Get the current page.
 
@@ -336,7 +322,6 @@ class Document:
         """
         return self.page(self.cur_page + 1)
 
-
     def pages_number(self):
         """Get the number of pages in the document.
 
@@ -344,7 +329,6 @@ class Document:
         :rtype: integer
         """
         return self.nb_pages
-
 
     def goto(self, number):
         """Switch to another page.
@@ -375,5 +359,4 @@ class Document:
 
     def goto_end(self):
         """Switch to the last page."""
-        self.goto(self.nb_pages-1)
-
+        self.goto(self.nb_pages - 1)

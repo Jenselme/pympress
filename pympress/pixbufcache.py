@@ -85,7 +85,7 @@ class PixbufCache:
         self.doc = doc
         self.doc_lock = threading.Lock()
 
-    def add_widget(self, widget_name, type):
+    def add_widget(self, widget_name, gtk_type):
         """
         Add a widget to the list of widgets that have to be managed (for caching
         and prerendering).
@@ -101,14 +101,15 @@ class PixbufCache:
         """
         self.pixbuf_cache[widget_name] = {}
         self.pixbuf_size[widget_name] = (-1, -1)
-        self.pixbuf_type[widget_name] = type
+        self.pixbuf_type[widget_name] = gtk_type
         self.locks[widget_name] = threading.Lock()
-        self.threads[widget_name] = threading.Thread(target=self.renderer, args=(widget_name,))
+        self.threads[widget_name] = threading.Thread(target=self.renderer,
+                                                        args=(widget_name,))
         self.threads[widget_name].daemon = True
         self.jobs[widget_name] = queue.Queue(0)
         self.threads[widget_name].start()
 
-    def set_widget_type(self, widget_name, type):
+    def set_widget_type(self, widget_name, gtk_type):
         """
         Set the document type of a widget.
 
@@ -118,8 +119,8 @@ class PixbufCache:
         :type  type: integer
         """
         with self.locks[widget_name]:
-            if self.pixbuf_type[widget_name] != type :
-                self.pixbuf_type[widget_name] = type
+            if self.pixbuf_type[widget_name] != gtk_type:
+                self.pixbuf_type[widget_name] = gtk_type
                 self.pixbuf_cache[widget_name].clear()
 
     def get_widget_type(self, widget_name):
@@ -233,12 +234,13 @@ class PixbufCache:
                     # Already in cache
                     continue
                 ww, wh = self.pixbuf_size[widget_name]
-                type = self.pixbuf_type[widget_name]
+                gtk_type = self.pixbuf_type[widget_name]
             with self.doc_lock:
                 page = self.doc.page(page_nb)
-                pw, ph = page.get_size(type)
+                pw, ph = page.get_size(gtk_type)
 
-            print(("Prerendering page %d for widget %s type %d" % (page_nb+1, widget_name, type)))
+            print(("Prerendering page %d for widget %s type %d" %
+                        (page_nb+1, widget_name, type)))
 
             #FIXME: Deprecated since version 3.6: All GDK and GTK+ calls should be made from the main thread
             # http://lazka.github.io/pgi-docs/api/Gdk_3.0/functions.html?highlight=thread#Gdk.threads_enter

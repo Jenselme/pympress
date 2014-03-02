@@ -44,11 +44,12 @@ import pympress.pixbufcache
 import pympress.util
 
 #: "Regular" PDF file (without notes)
-PDF_REGULAR      = 0
+PDF_REGULAR = 0
 #: Content page (left side) of a PDF file with notes
 PDF_CONTENT_PAGE = 1
 #: Notes page (right side) of a PDF file with notes
-PDF_NOTES_PAGE   = 2
+PDF_NOTES_PAGE = 2
+
 
 class UI:
     """Pympress GUI management."""
@@ -184,18 +185,18 @@ class UI:
         action_group = Gtk.ActionGroup("MenuBar")
         # Name, stock id, label, accelerator, tooltip, action [, is_active]
         action_group.add_actions([
-            ("File",         None,           "_File"),
-            ("Presentation", None,           "_Presentation"),
-            ("Help",         None,           "_Help"),
+            ("File", None, "_File"),
+            ("Presentation", None, "_Presentation"),
+            ("Help", None, "_Help"),
 
-            ("Quit",         Gtk.STOCK_QUIT, "_Quit",        "q",  None, Gtk.main_quit),
-            ("Reset timer",  None,           "_Reset timer", "r",  None, self.reset_timer),
-            ("About",        None,           "_About",       None, None, self.menu_about),
+            ("Quit", Gtk.STOCK_QUIT, "_Quit", "q", None, Gtk.main_quit),
+            ("Reset timer", None, "_Reset timer", "r", None, self.reset_timer),
+            ("About", None, "_About", None, None, self.menu_about),
         ])
         action_group.add_toggle_actions([
-            ("Pause timer",  None,           "_Pause timer", "p",  None, self.switch_pause,      True),
-            ("Fullscreen",   None,           "_Fullscreen",  "f",  None, self.switch_fullscreen, False),
-            ("Notes mode",   None,           "_Note mode",   "n",  None, self.switch_mode,       self.notes_mode),
+            ("Pause timer", None, "_Pause timer", "p", None, self.switch_pause, True),
+            ("Fullscreen", None, "_Fullscreen", "f", None, self.switch_fullscreen, False),
+            ("Notes mode", None, "_Note mode", "n", None, self.switch_mode, self.notes_mode),
         ])
         ui_manager.insert_action_group(action_group)
 
@@ -238,7 +239,7 @@ class UI:
         self.p_da_cur.set_name("p_da_cur")
         if self.notes_mode:
             self.cache.add_widget("p_da_cur", PDF_NOTES_PAGE)
-        else :
+        else:
             self.cache.add_widget("p_da_cur", PDF_REGULAR)
         self.p_da_cur.connect("configure-event", self.on_configure)
         self.p_frame_cur.add(self.p_da_cur)
@@ -269,7 +270,7 @@ class UI:
         self.p_da_next.set_name("p_da_next")
         if self.notes_mode:
             self.cache.add_widget("p_da_next", PDF_CONTENT_PAGE)
-        else :
+        else:
             self.cache.add_widget("p_da_next", PDF_REGULAR)
         self.p_da_next.connect("configure-event", self.on_configure)
         self.p_frame_next.add(self.p_da_next)
@@ -309,15 +310,18 @@ class UI:
 
         # Hyperlinks if available
         if pympress.util.poppler_links_available():
-            self.c_da.add_events(Gdk.EventMask.BUTTON_PRESS_MASK | Gdk.EventMask.POINTER_MOTION_MASK)
+            self.c_da.add_events(Gdk.EventMask.BUTTON_PRESS_MASK |
+                                    Gdk.EventMask.POINTER_MOTION_MASK)
             self.c_da.connect("button-press-event", self.on_link)
             self.c_da.connect("motion-notify-event", self.on_link)
 
-            self.p_da_cur.add_events(Gdk.EventMask.BUTTON_PRESS_MASK | Gdk.EventMask.POINTER_MOTION_MASK)
+            self.p_da_cur.add_events(Gdk.EventMask.BUTTON_PRESS_MASK |
+                                        Gdk.EventMask.POINTER_MOTION_MASK)
             self.p_da_cur.connect("button-press-event", self.on_link)
             self.p_da_cur.connect("motion-notify-event", self.on_link)
 
-            self.p_da_next.add_events(Gdk.EventMask.BUTTON_PRESS_MASK | Gdk.EventMask.POINTER_MOTION_MASK)
+            self.p_da_next.add_events(Gdk.EventMask.BUTTON_PRESS_MASK |
+                                        Gdk.EventMask.POINTER_MOTION_MASK)
             self.p_da_next.connect("button-press-event", self.on_link)
             self.p_da_next.connect("motion-notify-event", self.on_link)
 
@@ -331,13 +335,11 @@ class UI:
         self.c_win.show_all()
         p_win.show_all()
 
-
     def run(self):
         """Run the GTK main loop."""
         #FIXME: with Gdk.lock:
             #FIXME: Gtk.main()
         Gtk.main()
-
 
     def menu_about(self, widget=None, event=None):
         """Display the "About pympress" dialog."""
@@ -345,7 +347,8 @@ class UI:
         about.set_program_name("pympress")
         about.set_version(pympress.__version__)
         about.set_copyright("(c) 2009, 2010 Thomas Jost")
-        about.set_comments("pympress is a little PDF reader written in Python using Poppler for PDF rendering and GTK for the GUI.")
+        about.set_comments("""pympress is a little PDF reader written in Python
+                            using Poppler for PDF rendering and GTK for the GUI.""")
         about.set_website("http://www.pympress.org/")
         try:
             req = pkg_resources.Requirement.parse("pympress")
@@ -355,7 +358,6 @@ class UI:
             print(e)
         about.run()
         about.destroy()
-
 
     def on_page_change(self, unpause=True):
         """
@@ -398,9 +400,8 @@ class UI:
         cur = page_cur.number()
         page_max = min(self.doc.pages_number(), cur + 5)
         page_min = max(0, cur - 2)
-        for p in list(range(cur+1, page_max)) + list(range(cur, page_min, -1)):
+        for p in list(range(cur + 1, page_max)) + list(range(cur, page_min, -1)):
             self.cache.prerender(p)
-
 
     def on_expose(self, widget, event=None):
         """
@@ -454,7 +455,6 @@ class UI:
             #FIXME: gc = Gdk.GC.new(window)
             #FIXME: window.draw_pixbuf(gc, pb, 0, 0, 0, 0)
 
-
     def on_configure(self, widget, event):
         """
         Manage "configure" events for both windows.
@@ -472,7 +472,6 @@ class UI:
         :type  event: :class:`Gdk.Event`
         """
         self.cache.resize_widget(widget.get_name(), event.width, event.height)
-
 
     def on_navigation(self, widget, event):
         """
@@ -523,7 +522,6 @@ class UI:
         else:
             print("Unknown event %s" % event.type)
 
-
     def on_link(self, widget, event):
         """
         Manage events related to hyperlinks.
@@ -565,7 +563,6 @@ class UI:
         else:
             print("Unknown event %s" % event.type)
 
-
     def on_label_event(self, widget, event):
         """
         Manage events on the current slide label/entry.
@@ -585,7 +582,8 @@ class UI:
         # Click on the label
         if widget is self.label_cur and event.type == Gdk.EventType.BUTTON_PRESS:
             # Set entry text
-            self.entry_cur.set_text("%d/%d" % (self.doc.current_page().number()+1, self.doc.pages_number()))
+            self.entry_cur.set_text("%d/%d" % (self.doc.current_page().number()+1,
+                                        self.doc.pages_number()))
             self.entry_cur.select_region(0, -1)
 
             # Replace label with entry
@@ -626,8 +624,6 @@ class UI:
         # Propagate the event further
         return False
 
-
-
     def render_page(self, page, widget, wtype):
         """
         Render a page on a widget.
@@ -667,7 +663,6 @@ class UI:
         # Blit off-screen buffer to screen
         window.end_paint()
 
-
     def restore_current_label(self):
         """
         Make sure that the current page number is displayed in a label and not
@@ -678,22 +673,20 @@ class UI:
             self.eb_cur.remove(child)
             self.eb_cur.add(self.label_cur)
 
-
     def update_page_numbers(self):
         """Update the displayed page numbers."""
 
         text = "<span font='36'>%s</span>"
 
         cur_nb = self.doc.current_page().number()
-        cur = "%d/%d" % (cur_nb+1, self.doc.pages_number())
+        cur = "%d/%d" % (cur_nb + 1, self.doc.pages_number())
         next = "--"
-        if cur_nb+2 <= self.doc.pages_number():
-            next = "%d/%d" % (cur_nb+2, self.doc.pages_number())
+        if cur_nb + 2 <= self.doc.pages_number():
+            next = "%d/%d" % (cur_nb + 2, self.doc.pages_number())
 
         self.label_cur.set_markup(text % cur)
         self.label_next.set_markup(text % next)
         self.restore_current_label()
-
 
     def update_time(self):
         """
@@ -711,7 +704,7 @@ class UI:
         # Time elapsed since the beginning of the presentation
         if not self.paused:
             self.delta = time.time() - self.start_time
-        elapsed = "%02d:%02d" % (int(self.delta/60), int(self.delta%60))
+        elapsed = "%02d:%02d" % (int(self.delta/60), int(self.delta % 60))
         if self.paused:
             elapsed += " (pause)"
 
@@ -719,7 +712,6 @@ class UI:
         self.label_clock.set_markup(text % clock)
 
         return True
-
 
     def switch_pause(self, widget=None, event=None):
         """Switch the timer between paused mode and running (normal) mode."""
@@ -730,12 +722,10 @@ class UI:
             self.paused = True
         self.update_time()
 
-
     def reset_timer(self, widget=None, event=None):
         """Reset the timer."""
         self.start_time = time.time()
         self.update_time()
-
 
     def set_screensaver(self, must_disable):
         """
@@ -760,7 +750,7 @@ class UI:
             # Also manage screen blanking via DPMS
             if must_disable:
                 # Get current DPMS status
-                pipe = os.popen("xset q") # TODO: check if this works on all locales
+                pipe = os.popen("xset q")  # TODO: check if this works on all locales
                 dpms_status = "Disabled"
                 for line in pipe.readlines():
                     if line.count("DPMS is") > 0:
@@ -785,7 +775,6 @@ class UI:
         else:
             print("Warning: Unsupported OS: can't enable/disable screensaver", file=sys.stderr)
 
-
     def switch_fullscreen(self, widget=None, event=None):
         """
         Switch the Content window to fullscreen (if in normal mode) or to normal
@@ -802,7 +791,6 @@ class UI:
             self.fullscreen = True
 
         self.set_screensaver(self.fullscreen)
-
 
     def switch_mode(self, widget=None, event=None):
         """
