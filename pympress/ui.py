@@ -35,16 +35,9 @@ import time
 
 import pkg_resources
 
-#import pygtk
-#pygtk.require('2.0')
-#import gobject
-#import gtk
-from gi.repository import Gtk as gtk
-#import pango
-from gi.repository import Pango as pango
+from gi.repository import Gtk
+from gi.repository import Pango
 from gi.repository import GLib, cairo, GdkPixbuf
-
-#FIXME: under
 from gi.repository import Gdk
 
 import pympress.pixbufcache
@@ -63,35 +56,35 @@ class UI:
     #: :class:`~pympress.pixbufcache.PixbufCache` instance.
     cache = None
 
-    #: Content window, as a :class:`gtk.Window` instance.
-    c_win = gtk.Window(gtk.WindowType.TOPLEVEL)
-    #: :class:`~gtk.AspectFrame` for the Content window.
-    c_frame = gtk.AspectFrame(ratio=4./3., obey_child=False)
-    #: :class:`~gtk.DrawingArea` for the Content window.
-    c_da = gtk.DrawingArea()
+    #: Content window, as a :class:`Gtk.Window` instance.
+    c_win = Gtk.Window(Gtk.WindowType.TOPLEVEL)
+    #: :class:`~Gtk.AspectFrame` for the Content window.
+    c_frame = Gtk.AspectFrame(ratio=4./3., obey_child=False)
+    #: :class:`~Gtk.DrawingArea` for the Content window.
+    c_da = Gtk.DrawingArea()
 
-    #: :class:`~gtk.AspectFrame` for the current slide in the Presenter window.
-    p_frame_cur = gtk.AspectFrame(yalign=1, ratio=4./3., obey_child=False)
-    #: :class:`~gtk.DrawingArea` for the current slide in the Presenter window.
-    p_da_cur = gtk.DrawingArea()
-    #: Slide counter :class:`~gtk.Label` for the current slide.
-    label_cur = gtk.Label()
-    #: :class:`~gtk.EventBox` associated with the slide counter label in the Presenter window.
-    eb_cur = gtk.EventBox()
-    #: :class:`~gtk.Entry` used to switch to another slide by typing its number.
-    entry_cur = gtk.Entry()
+    #: :class:`~Gtk.AspectFrame` for the current slide in the Presenter window.
+    p_frame_cur = Gtk.AspectFrame(yalign=1, ratio=4./3., obey_child=False)
+    #: :class:`~Gtk.DrawingArea` for the current slide in the Presenter window.
+    p_da_cur = Gtk.DrawingArea()
+    #: Slide counter :class:`~Gtk.Label` for the current slide.
+    label_cur = Gtk.Label()
+    #: :class:`~Gtk.EventBox` associated with the slide counter label in the Presenter window.
+    eb_cur = Gtk.EventBox()
+    #: :class:`~Gtk.Entry` used to switch to another slide by typing its number.
+    entry_cur = Gtk.Entry()
 
-    #: :class:`~gtk.AspectFrame` for the next slide in the Presenter window.
-    p_frame_next = gtk.AspectFrame(yalign=1, ratio=4./3., obey_child=False)
-    #: :class:`~gtk.DrawingArea` for the next slide in the Presenter window.
-    p_da_next = gtk.DrawingArea()
-    #: Slide counter :class:`~gtk.Label` for the next slide.
-    label_next = gtk.Label()
+    #: :class:`~Gtk.AspectFrame` for the next slide in the Presenter window.
+    p_frame_next = Gtk.AspectFrame(yalign=1, ratio=4./3., obey_child=False)
+    #: :class:`~Gtk.DrawingArea` for the next slide in the Presenter window.
+    p_da_next = Gtk.DrawingArea()
+    #: Slide counter :class:`~Gtk.Label` for the next slide.
+    label_next = Gtk.Label()
 
-    #: Elapsed time :class:`~gtk.Label`.
-    label_time = gtk.Label()
-    #: Clock :class:`~gtk.Label`.
-    label_clock = gtk.Label()
+    #: Elapsed time :class:`~Gtk.Label`.
+    label_time = Gtk.Label()
+    #: Clock :class:`~Gtk.Label`.
+    label_clock = Gtk.Label()
 
     #: Time at which the counter was started.
     start_time = 0
@@ -128,13 +121,13 @@ class UI:
         # Content window
         self.c_win.set_title("pympress content")
         self.c_win.set_default_size(800, 600)
-        self.c_win.modify_bg(gtk.StateFlags.NORMAL, black)
-        self.c_win.connect("delete-event", gtk.main_quit)
+        self.c_win.modify_bg(Gtk.StateFlags.NORMAL, black)
+        self.c_win.connect("delete-event", Gtk.main_quit)
         #FIXME: self.c_win.set_icon_list(*icon_list)
 
-        self.c_frame.modify_bg(gtk.StateFlags.NORMAL, black)
+        self.c_frame.modify_bg(Gtk.StateFlags.NORMAL, black)
 
-        self.c_da.modify_bg(gtk.StateFlags.NORMAL, black)
+        self.c_da.modify_bg(Gtk.StateFlags.NORMAL, black)
         self.c_da.connect("draw", self.on_expose)
         self.c_da.set_name("c_da")
         if self.notes_mode:
@@ -151,19 +144,19 @@ class UI:
         self.c_win.connect("scroll-event", self.on_navigation)
 
         # Presenter window
-        p_win = gtk.Window(gtk.WindowType.TOPLEVEL)
+        p_win = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         p_win.set_title("pympress presenter")
         p_win.set_default_size(800, 600)
-        p_win.set_position(gtk.WindowPosition.CENTER)
-        p_win.connect("delete-event", gtk.main_quit)
+        p_win.set_position(Gtk.WindowPosition.CENTER)
+        p_win.connect("delete-event", Gtk.main_quit)
         #FIXME: p_win.set_icon_list(*icon_list)
 
         # Put Menu and Table in VBox
-        bigvbox = gtk.VBox(False, 2)
+        bigvbox = Gtk.VBox(False, 2)
         p_win.add(bigvbox)
 
         # UI Manager for menu
-        ui_manager = gtk.UIManager()
+        ui_manager = Gtk.UIManager()
 
         # UI description
         ui_desc = '''
@@ -188,14 +181,14 @@ class UI:
         p_win.add_accel_group(accel_group)
 
         # Action group
-        action_group = gtk.ActionGroup("MenuBar")
+        action_group = Gtk.ActionGroup("MenuBar")
         # Name, stock id, label, accelerator, tooltip, action [, is_active]
         action_group.add_actions([
             ("File",         None,           "_File"),
             ("Presentation", None,           "_Presentation"),
             ("Help",         None,           "_Help"),
 
-            ("Quit",         gtk.STOCK_QUIT, "_Quit",        "q",  None, gtk.main_quit),
+            ("Quit",         Gtk.STOCK_QUIT, "_Quit",        "q",  None, Gtk.main_quit),
             ("Reset timer",  None,           "_Reset timer", "r",  None, self.reset_timer),
             ("About",        None,           "_About",       None, None, self.menu_about),
         ])
@@ -213,34 +206,34 @@ class UI:
         bigvbox.pack_start(menubar, False, False, 0)
 
         # A little space around everything in the window
-        #FIXME: align = gtk.Alignment(0.5, 0.5, 1, 1)
-        align = gtk.Alignment()
+        #FIXME: align = Gtk.Alignment(0.5, 0.5, 1, 1)
+        align = Gtk.Alignment()
         align.set(0.5, 0.5, 1, 1)
         align.set_padding(20, 20, 20, 20)
 
         # Table
-        table = gtk.Table(2, 10, False)
+        table = Gtk.Table(2, 10, False)
         table.set_col_spacings(25)
         table.set_row_spacings(25)
         align.add(table)
         bigvbox.pack_end(align, False, False, 0)
 
         # "Current slide" frame
-        frame = gtk.Frame()
+        frame = Gtk.Frame()
         frame.set_label("Current slide")
         table.attach(frame, 0, 6, 0, 1)
-        #FIXME: align = gtk.Alignment(0.5, 0.5, 1, 1)
-        align = gtk.Alignment()
+        #FIXME: align = Gtk.Alignment(0.5, 0.5, 1, 1)
+        align = Gtk.Alignment()
         align.set(0.5, 0.5, 1, 1)
         align.set_padding(0, 0, 12, 0)
         frame.add(align)
-        vbox = gtk.VBox()
+        vbox = Gtk.VBox()
         align.add(vbox)
         vbox.pack_start(self.p_frame_cur, False, False, 0)
         self.eb_cur.set_visible_window(False)
         self.eb_cur.connect("event", self.on_label_event)
         vbox.pack_start(self.eb_cur, False, False, 10)
-        self.p_da_cur.modify_bg(gtk.StateFlags.NORMAL, black)
+        self.p_da_cur.modify_bg(Gtk.StateFlags.NORMAL, black)
         self.p_da_cur.connect("draw", self.on_expose)
         self.p_da_cur.set_name("p_da_cur")
         if self.notes_mode:
@@ -251,27 +244,27 @@ class UI:
         self.p_frame_cur.add(self.p_da_cur)
 
         # "Current slide" label and entry
-        self.label_cur.set_justify(gtk.Justification.CENTER)
+        self.label_cur.set_justify(Gtk.Justification.CENTER)
         self.label_cur.set_use_markup(True)
         self.eb_cur.add(self.label_cur)
         self.entry_cur.set_alignment(0.5)
-        self.entry_cur.modify_font(pango.FontDescription('36'))
+        self.entry_cur.modify_font(Pango.FontDescription('36'))
 
         # "Next slide" frame
-        frame = gtk.Frame()
+        frame = Gtk.Frame()
         frame.set_label("Next slide")
         table.attach(frame, 6, 10, 0, 1)
-        align = gtk.Alignment()
+        align = Gtk.Alignment()
         align.set(0.5, 0.5, 1, 1)
         align.set_padding(0, 0, 12, 0)
         frame.add(align)
-        vbox = gtk.VBox()
+        vbox = Gtk.VBox()
         align.add(vbox)
         vbox.pack_start(self.p_frame_next, False, False, 0)
-        self.label_next.set_justify(gtk.Justification.CENTER)
+        self.label_next.set_justify(Gtk.Justification.CENTER)
         self.label_next.set_use_markup(True)
         vbox.pack_start(self.label_next, False, False, 10)
-        self.p_da_next.modify_bg(gtk.StateFlags.NORMAL, black)
+        self.p_da_next.modify_bg(Gtk.StateFlags.NORMAL, black)
         self.p_da_next.connect("draw", self.on_expose)
         self.p_da_next.set_name("p_da_next")
         if self.notes_mode:
@@ -282,30 +275,30 @@ class UI:
         self.p_frame_next.add(self.p_da_next)
 
         # "Time elapsed" frame
-        frame = gtk.Frame()
+        frame = Gtk.Frame()
         frame.set_label("Time elapsed")
-        table.attach(frame, 0, 5, 1, 2, yoptions=gtk.AttachOptions.FILL)
-        align = gtk.Alignment()
+        table.attach(frame, 0, 5, 1, 2, yoptions=Gtk.AttachOptions.FILL)
+        align = Gtk.Alignment()
         align.set(0.5, 0.5, 1, 1)
         align.set_padding(10, 10, 12, 0)
         frame.add(align)
-        self.label_time.set_justify(gtk.Justification.CENTER)
+        self.label_time.set_justify(Gtk.Justification.CENTER)
         self.label_time.set_use_markup(True)
         align.add(self.label_time)
 
         # "Clock" frame
-        frame = gtk.Frame()
+        frame = Gtk.Frame()
         frame.set_label("Clock")
-        table.attach(frame, 5, 10, 1, 2, yoptions=gtk.AttachOptions.FILL)
-        align = gtk.Alignment()
+        table.attach(frame, 5, 10, 1, 2, yoptions=Gtk.AttachOptions.FILL)
+        align = Gtk.Alignment()
         align.set(0.5, 0.5, 1, 1)
         align.set_padding(10, 10, 12, 0)
         frame.add(align)
-        self.label_clock.set_justify(gtk.Justification.CENTER)
+        self.label_clock.set_justify(Gtk.Justification.CENTER)
         self.label_clock.set_use_markup(True)
         align.add(self.label_clock)
 
-        p_win.connect("destroy", gtk.main_quit)
+        p_win.connect("destroy", Gtk.main_quit)
         p_win.show_all()
 
 
@@ -342,13 +335,13 @@ class UI:
     def run(self):
         """Run the GTK main loop."""
         #FIXME: with Gdk.lock:
-            #FIXME: gtk.main()
-        gtk.main()
+            #FIXME: Gtk.main()
+        Gtk.main()
 
 
     def menu_about(self, widget=None, event=None):
         """Display the "About pympress" dialog."""
-        about = gtk.AboutDialog()
+        about = Gtk.AboutDialog()
         about.set_program_name("pympress")
         about.set_version(pympress.__version__)
         about.set_copyright("(c) 2009, 2010 Thomas Jost")
@@ -419,7 +412,7 @@ class UI:
         :class:`~pympress.pixbufcache.PixbufCache` if possible.
 
         :param widget: the widget to update
-        :type  widget: :class:`gtk.Widget`
+        :type  widget: :class:`Gtk.Widget`
         :param event: the GTK event (or ``None`` if called directly)
         :type  event: :class:`Gdk.Event`
         """
@@ -433,11 +426,11 @@ class UI:
             parent = widget.get_parent()
             if page is None:
                 widget.hide_all()
-                parent.set_shadow_type(gtk.SHADOW_NONE)
+                parent.set_shadow_type(Gtk.SHADOW_NONE)
                 return
             else:
                 widget.show_all()
-                parent.set_shadow_type(gtk.ShadowType.IN)
+                parent.set_shadow_type(Gtk.ShadowType.IN)
 
         # Instead of rendering the document to a Cairo surface (which is slow),
         # use a pixbuf from the cache if possible.
@@ -473,7 +466,7 @@ class UI:
         specified widget and pre-render next pages at a correct size.
 
         :param widget: the widget which has been resized
-        :type  widget: :class:`gtk.Widget`
+        :type  widget: :class:`Gtk.Widget`
         :param event: the GTK event, which contains the new dimensions of the
            widget
         :type  event: :class:`Gdk.Event`
@@ -486,7 +479,7 @@ class UI:
         Manage events as mouse scroll or clicks for both windows.
 
         :param widget: the widget in which the event occured (ignored)
-        :type  widget: :class:`gtk.Widget`
+        :type  widget: :class:`Gtk.Widget`
         :param event: the event that occured
         :type  event: :class:`Gdk.Event`
         """
@@ -506,7 +499,7 @@ class UI:
                 or (name.upper() == "L" and event.state & Gdk.CONTROL_MASK):
                 self.switch_fullscreen()
             elif name.upper() == "Q":
-                gtk.main_quit()
+                Gtk.main_quit()
             elif name == "Pause":
                 self.switch_pause()
             elif name.upper() == "R":
@@ -536,7 +529,7 @@ class UI:
         Manage events related to hyperlinks.
 
         :param widget: the widget in which the event occured
-        :type  widget: :class:`gtk.Widget`
+        :type  widget: :class:`Gtk.Widget`
         :param event: the event that occured
         :type  event: :class:`Gdk.Event`
         """
@@ -582,7 +575,7 @@ class UI:
         ancient kind of dark magic that should be avoided as much as possible...
 
         :param widget: the widget in which the event occured
-        :type  widget: :class:`gtk.Widget`
+        :type  widget: :class:`Gtk.Widget`
         :param event: the event that occured
         :type  event: :class:`Gdk.Event`
         """
@@ -646,7 +639,7 @@ class UI:
         :param page: the page to render
         :type  page: :class:`pympress.document.Page`
         :param widget: the widget on which the page must be rendered
-        :type  widget: :class:`gtk.DrawingArea`
+        :type  widget: :class:`Gtk.DrawingArea`
         :param wtype: the type of document to render
         :type  wtype: integer
         """
@@ -827,12 +820,3 @@ class UI:
             self.cache.set_widget_type("p_da_next", PDF_CONTENT_PAGE)
 
         self.on_page_change(False)
-
-
-##
-# Local Variables:
-# mode: python
-# indent-tabs-mode: nil
-# py-indent-offset: 4
-# fill-column: 80
-# end:

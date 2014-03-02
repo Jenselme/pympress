@@ -39,10 +39,6 @@ import queue
 import threading
 import time
 
-#import pygtk
-#pygtk.require('2.0')
-#import gtk
-from gi.repository import Gtk as gtk
 from gi.repository import Gdk
 from gi.repository import GdkPixbuf
 

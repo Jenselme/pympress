@@ -22,16 +22,10 @@
 -------------------------------------------------
 """
 
-#import pygtk
-#pygtk.require('2.0')
-#import gtk
-from gi.repository import Gtk as gtk
 import pkg_resources
 import os, os.path, sys
-#import poppler
-from gi.repository import Poppler as poppler
+from gi.repository import Poppler
 
-#FIXME:
 from gi.repository import Gdk
 import os
 
@@ -41,7 +35,7 @@ def load_icons():
     :file:`/usr/share/pixmaps` or something similar).
 
     :return: loaded icons
-    :rtype: list of :class:`gtk.gdk.Pixbuf`
+    :rtype: list of :class:`Gtk.gdk.Pixbuf`
     """
 
     #FIXME: req = pkg_resources.Requirement.parse("pympress")
@@ -61,7 +55,7 @@ def load_icons():
 
 
 def poppler_links_available():
-    """Check if hyperlinks are supported in python-poppler.
+    """Check if hyperlinks are supported in python-Poppler.
 
     :return: ``True`` if python-poppler is recent enough to support hyperlinks,
        ``False`` otherwise
@@ -69,16 +63,8 @@ def poppler_links_available():
     """
 
     try:
-        type(poppler.ActionGotoDest)
+        type(Poppler.ActionGotoDest)
     except AttributeError:
         return False
     else:
         return True
-
-##
-# Local Variables:
-# mode: python
-# indent-tabs-mode: nil
-# py-indent-offset: 4
-# fill-column: 80
-# end:

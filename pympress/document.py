@@ -34,13 +34,12 @@ elsewhere).
 
 import sys
 
-#import poppler
-from gi.repository import Poppler as poppler
+from gi.repository import Poppler
 
 import pympress.ui
 import pympress.util
 
-from pympress.ui import PDF_REGULAR, PDF_CONTENT_PAGE, PDF_NOTES_PAGE
+from pympress.ui import PDF_REGULAR, PDF_NOTES_PAGE
 
 class Link:
     """This class encapsulates one hyperlink of the document."""
@@ -105,7 +104,7 @@ class Page:
 
     """
 
-    #: Page handled by this class (instance of :class:`poppler.Page`)
+    #: Page handled by this class (instance of :class:`Poppler.Page`)
     page = None
     #: Number of the current page (starting from 0)
     page_nb = -1
@@ -120,7 +119,7 @@ class Page:
     def __init__(self, doc, number):
         """
         :param doc: the PDF document
-        :type  doc: :class:`poppler.Document`
+        :type  doc: :class:`Poppler.Document`
         :param number: number of the page to fetch in the document
         :type  number: integer
         """
@@ -136,11 +135,11 @@ class Page:
             self.links = []
 
             for link in link_mapping:
-                if type(link.action) is poppler.ActionGotoDest:
+                if type(link.action) is Poppler.ActionGotoDest:
                     dest = link.action.dest
                     page_num = dest.page_num
 
-                    if dest.type == poppler.DEST_NAMED:
+                    if dest.type == Poppler.DEST_NAMED:
                         page_num = doc.find_dest(dest.named_dest).page_num
 
                     # Page numbering starts at 0
@@ -243,7 +242,7 @@ class Document:
        starts at 0.
     """
 
-    #: Current PDF document (:class:`poppler.Document` instance)
+    #: Current PDF document (:class:`Poppler.Document` instance)
     doc = None
     #: Number of pages in the document
     nb_pages = -1
@@ -272,7 +271,7 @@ class Document:
             print >>sys.stderr, "Hyperlink support not found in poppler-python -- be sure to use at least bazaar rev. 62 to have them working"
 
         # Open PDF file
-        self.doc = poppler.Document.new_from_file(uri, None)
+        self.doc = Poppler.Document.new_from_file(uri, None)
 
         # Pages number
         self.nb_pages = self.doc.get_n_pages()
@@ -378,11 +377,3 @@ class Document:
         """Switch to the last page."""
         self.goto(self.nb_pages-1)
 
-
-##
-# Local Variables:
-# mode: python
-# indent-tabs-mode: nil
-# py-indent-offset: 4
-# fill-column: 80
-# end:
