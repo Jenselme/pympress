@@ -27,6 +27,7 @@ import os, os.path, sys
 from gi.repository import Poppler
 
 from gi.repository import Gdk
+from gi.repository.GdkPixbuf import Pixbuf
 import os
 
 
@@ -39,17 +40,26 @@ def load_icons():
     :rtype: list of :class:`Gtk.gdk.Pixbuf`
     """
 
-    #FIXME: req = pkg_resources.Requirement.parse("pympress")
-    #FIXME: icon_names = pkg_resources.resource_listdir(req, "share/pixmaps")
-    icon_names = os.listdir("share/pixmaps")
+    req = pkg_resources.Requirement.parse("pympress")
+
+    # If pkg_resources fails, load from directory
+    try:
+        icon_names = pkg_resources.resource_listdir(req, "share/pixmaps")
+    except pkg_resources.DistributionNotFound:
+        icon_names = os.listdir("share/pixmaps")
     icons = []
     for icon_name in icon_names:
         if os.path.splitext(icon_name)[1].lower() != ".png":
             continue
-        #FIXME: icon_fn = pkg_resources.resource_filename(req, "share/pixmaps/%s" % icon_name)
-        icon_fn = icon_name
+
+        # If pkg_resources fails, load from directory
         try:
-            icon_pixbuf = Gdk.pixbuf_new_from_file(icon_fn)
+            icon_fn = pkg_resources.resource_filename(req, "share/pixmaps/{}".format(icon_name))
+        except pkg_resources.DistributionNotFound:
+            icon_fn = "share/pixmaps/{}".format(icon_name)
+        try:
+            icon_pixbuf = Pixbuf()
+            icon_pixbuf.new_from_file(icon_fn)
             icons.append(icon_pixbuf)
         except Exception as e:
             print(e)
