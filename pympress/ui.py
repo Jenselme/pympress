@@ -207,7 +207,6 @@ class UI:
         bigvbox.pack_start(menubar, False, False, 0)
 
         # A little space around everything in the window
-        #FIXME: align = Gtk.Alignment(0.5, 0.5, 1, 1)
         align = Gtk.Alignment()
         align.set(0.5, 0.5, 1, 1)
         align.set_padding(20, 20, 20, 20)
@@ -223,7 +222,6 @@ class UI:
         frame = Gtk.Frame()
         frame.set_label("Current slide")
         table.attach(frame, 0, 6, 0, 1)
-        #FIXME: align = Gtk.Alignment(0.5, 0.5, 1, 1)
         align = Gtk.Alignment()
         align.set(0.5, 0.5, 1, 1)
         align.set_padding(0, 0, 12, 0)
@@ -495,7 +493,7 @@ class UI:
                 self.doc.goto_end()
             elif (name.upper() in ["F", "F11"]) \
                 or (name == "Return" and event.state & Gdk.MOD1_MASK) \
-                or (name.upper() == "L" and event.state & Gdk.CONTROL_MASK):
+                or (name.upper() == "L" and event.state & Gdk.CONTROL_MASK):  #FIXME
                 self.switch_fullscreen()
             elif name.upper() == "Q":
                 Gtk.main_quit()
