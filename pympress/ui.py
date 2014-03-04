@@ -425,7 +425,7 @@ class UI:
             parent = widget.get_parent()
             if page is None:
                 widget.hide_all()
-                parent.set_shadow_type(Gtk.SHADOW_NONE)
+                parent.set_shadow_type(Gtk.ShadowType.NONE)
                 return
             else:
                 widget.show_all()
