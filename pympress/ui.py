@@ -424,7 +424,7 @@ class UI:
             page = self.doc.next_page()
             parent = widget.get_parent()
             if page is None:
-                widget.hide_all()
+                widget.hide()
                 parent.set_shadow_type(Gtk.ShadowType.NONE)
                 return
             else:
@@ -445,13 +445,13 @@ class UI:
             ww, wh = ww, wh = window.get_width(), window.get_height()
             pb = GdkPixbuf.Pixbuf()
             pb.new(GdkPixbuf.Colorspace.RGB, False, 8, ww, wh)
-            #FIXME: pb.get_from_drawable(window, window.get_colormap(), 0, 0, 0, 0, ww, wh)
+            Gdk.pixbuf_get_from_window(window, 0, 0, ww, wh)
             self.cache.set(name, nb, pb)
         else:
             # Cache hit: draw the pixbuf from the cache to the widget
             window = widget.get_window()
-            #FIXME: gc = Gdk.GC.new(window)
-            #FIXME: window.draw_pixbuf(gc, pb, 0, 0, 0, 0)
+            cr = Gdk.cairo_create(window)
+            #Gdk.cairo_set_source_pixbuf(cr, pb, 0, 0)
 
     def on_configure(self, widget, event):
         """
@@ -492,8 +492,8 @@ class UI:
             elif name == 'End':
                 self.doc.goto_end()
             elif (name.upper() in ["F", "F11"]) \
-                or (name == "Return" and event.state & Gdk.MOD1_MASK) \
-                or (name.upper() == "L" and event.state & Gdk.CONTROL_MASK):  #FIXME
+                or (name == "Return" and event.state & Gdk.ModifierType.MOD1_MASK) \
+                or (name.upper() == "L" and event.state & Gdk.ModifierType.CONTROL_MASK):
                 self.switch_fullscreen()
             elif name.upper() == "Q":
                 Gtk.main_quit()
@@ -511,8 +511,8 @@ class UI:
                 elif name.upper() == "N":
                     self.switch_mode()
 
-        elif event.type == Gdk.SCROLL:
-            if event.direction in [Gdk.SCROLL_RIGHT, Gdk.SCROLL_DOWN]:
+        elif event.type == Gdk.EventScroll:
+            if event.direction in [Gdk.ScrollDirection.RIGHT, Gdk.ScrollDirection.LEFT]:
                 self.doc.goto_next()
             else:
                 self.doc.goto_prev()
@@ -591,7 +591,7 @@ class UI:
             self.entry_cur.grab_focus()
 
         # Key pressed in the entry
-        elif widget is self.entry_cur and event.type == Gdk.KEY_RELEASE:
+        elif widget is self.entry_cur and event.type == Gdk.EventKey:
             name = Gdk.keyval_name(event.keyval)
 
             # Return key --> restore label and goto page
