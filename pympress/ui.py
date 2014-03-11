@@ -741,7 +741,7 @@ class UI:
             # On Linux, set screensaver with xdg-screensaver
             # (compatible with xscreensaver, gnome-screensaver and ksaver or whatever)
             cmd = "suspend" if must_disable else "resume"
-            status = os.system("xdg-screensaver %s %s" % (cmd, self.c_win.window.xid))
+            status = 1  #FIXME: xid is only for X11 (what about Wayland,…) os.system("xdg-screensaver %s %s" % (cmd, self.c_win.xid))
             if status != 0:
                 print("Warning: Could not set screensaver status: got status %d" % status, file=sys.stderr)
 
