@@ -435,7 +435,7 @@ class UI:
         # use a pixbuf from the cache if possible.
         name = widget.get_name()
         nb = page.number()
-        pb = self.cache.get(name, nb)
+        pb = None  #FIXME: cache is not functionnal self.cache.get(name, nb)
         wtype = self.cache.get_widget_type(name)
 
         if pb is None:

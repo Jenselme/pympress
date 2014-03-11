@@ -239,8 +239,8 @@ class PixbufCache:
                 page = self.doc.page(page_nb)
                 pw, ph = page.get_size(gtk_type)
 
-            print("Prerendering page {} for widget {} type {}"
-                        .format(page_nb+1, widget_name, gtk_type))
+            #print("Prerendering page {} for widget {} type {}"
+            #            .format(page_nb+1, widget_name, gtk_type))
             #FIXME: Deprecated since version 3.6: All GDK and GTK+ calls should be made from the main thread
             # http://lazka.github.io/pgi-docs/api/Gdk_3.0/functions.html?highlight=thread#Gdk.threads_enter
             # with Gdk.lock:
