@@ -337,8 +337,6 @@ class UI:
 
     def run(self):
         """Run the GTK main loop."""
-        #FIXME: with Gdk.lock:
-            #FIXME: Gtk.main()
         Gtk.main()
 
     def menu_about(self, widget=None, event=None):
