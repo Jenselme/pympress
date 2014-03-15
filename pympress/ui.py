@@ -121,7 +121,7 @@ class UI:
 
         # Content window
         self.c_win.set_title("pympress content")
-        self.c_win.set_default_size(800, 600)
+        self.c_win.set_default_size(1024, 728)
         self.c_win.modify_bg(Gtk.StateFlags.NORMAL, black)
         self.c_win.connect("delete-event", Gtk.main_quit)
         #FIXME: self.c_win.set_icon_list(icon_list)
@@ -147,7 +147,7 @@ class UI:
         # Presenter window
         p_win = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         p_win.set_title("pympress presenter")
-        p_win.set_default_size(800, 600)
+        p_win.set_default_size(1024, 728)
         p_win.set_position(Gtk.WindowPosition.CENTER)
         p_win.connect("delete-event", Gtk.main_quit)
         #FIXME: p_win.set_icon_list(icon_list)
@@ -235,6 +235,7 @@ class UI:
         self.p_da_cur.modify_bg(Gtk.StateFlags.NORMAL, black)
         self.p_da_cur.connect("draw", self.on_expose)
         self.p_da_cur.set_name("p_da_cur")
+        self.p_da_cur.set_size_request(0, 400)  #FIXME: size of preview is fixed
         if self.notes_mode:
             self.cache.add_widget("p_da_cur", PDF_NOTES_PAGE)
         else:
@@ -259,13 +260,14 @@ class UI:
         frame.add(align)
         vbox = Gtk.VBox()
         align.add(vbox)
-        vbox.pack_start(self.p_frame_next, False, False, 0)
         self.label_next.set_justify(Gtk.Justification.CENTER)
         self.label_next.set_use_markup(True)
-        vbox.pack_start(self.label_next, False, False, 10)
+        vbox.pack_end(self.label_next, False, False, 10)
+        vbox.pack_end(self.p_frame_next, False, False, 0)
         self.p_da_next.modify_bg(Gtk.StateFlags.NORMAL, black)
         self.p_da_next.connect("draw", self.on_expose)
         self.p_da_next.set_name("p_da_next")
+        self.p_da_next.set_size_request(0, 290)  #FIXME: size of preview is fixed
         if self.notes_mode:
             self.cache.add_widget("p_da_next", PDF_CONTENT_PAGE)
         else:
@@ -442,7 +444,7 @@ class UI:
             # Cache miss: render the page, and save it to the cache
             self.render_page(page, widget, wtype)
             window = widget.get_window()
-            ww, wh = ww, wh = window.get_width(), window.get_height()
+            ww, wh = window.get_width(), window.get_height()
             pb = GdkPixbuf.Pixbuf()
             pb.new(GdkPixbuf.Colorspace.RGB, False, 8, ww, wh)
             Gdk.pixbuf_get_from_window(window, 0, 0, ww, wh)
