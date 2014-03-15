@@ -593,11 +593,11 @@ class UI:
             self.entry_cur.grab_focus()
 
         # Key pressed in the entry
-        elif widget is self.entry_cur and event.type == Gdk.EventKey:
+        elif widget is self.entry_cur and event.type == Gdk.EventType.KEY_RELEASE:
             name = Gdk.keyval_name(event.keyval)
 
             # Return key --> restore label and goto page
-            if name == "Return" or name == "KP_Return":
+            if name == "Return" or name == "KP_Return" or name == "KP_Enter":
                 text = self.entry_cur.get_text()
                 self.restore_current_label()
 
