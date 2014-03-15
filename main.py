@@ -24,7 +24,6 @@ import sys
 
 from gi.repository import Gtk
 
-#FIXME: line under (seems deprecated)
 from gi.repository import Gdk
 
 import pympress.document
