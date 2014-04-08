@@ -31,9 +31,6 @@ only rendering itself: the preparation of the target surface must be done
 elsewhere).
 """
 
-
-import sys
-
 from gi.repository import Poppler
 
 import pympress.ui
