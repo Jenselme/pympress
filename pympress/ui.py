@@ -37,7 +37,7 @@ import pkg_resources
 
 from gi.repository import Gtk
 from gi.repository import Pango
-from gi.repository import GLib, cairo, GdkPixbuf
+from gi.repository import GLib, GdkPixbuf
 from gi.repository import Gdk
 
 import pympress.pixbufcache

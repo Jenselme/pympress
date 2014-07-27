@@ -23,10 +23,8 @@
 """
 
 import pkg_resources
-import os, os.path, sys
+import os, os.path
 from gi.repository import Poppler
-
-from gi.repository import Gdk
 from gi.repository.GdkPixbuf import Pixbuf
 import os
 
