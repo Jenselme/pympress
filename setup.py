@@ -45,16 +45,13 @@ setup(name="pympress",
           'Topic :: Multimedia :: Graphics :: Viewers',
       ],
       packages=["pympress"],
-      scripts=["bin/pympress"],
+    entry_points={
+        'console_scripts': [
+        'pympress = main.py',
+        ],
+    },
+
       data_files=[
           ("share/pixmaps", glob.glob("share/pixmaps/pympress*")),
       ],
 )
-
-##
-# Local Variables:
-# mode: python
-# indent-tabs-mode: nil
-# py-indent-offset: 4
-# fill-column: 80
-# end:
