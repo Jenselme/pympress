@@ -665,61 +665,10 @@ class UI:
         self.start_time = time.time()
         self.update_time()
 
-    def set_screensaver(self, must_disable):
-        """
-        Enable or disable the screensaver.
-
-        .. warning:: At the moment, this is only supported on POSIX systems
-           where :command:`xdg-screensaver` is installed and working. For now,
-           this feature has only been tested on **Linux with xscreensaver**.
-
-        :param must_disable: if ``True``, indicates that the screensaver must be
-           disabled; otherwise it will be enabled
-        :type  must_disable: boolean
-        """
-        if os.name == 'posix':
-            # On Linux, set screensaver with xdg-screensaver
-            # (compatible with xscreensaver, gnome-screensaver and ksaver or whatever)
-            cmd = "suspend" if must_disable else "resume"
-            status = 1  #FIXME: xid is only for X11 (what about Wayland,…) os.system("xdg-screensaver %s %s" % (cmd, self.c_win.xid))
-            if status != 0:
-                print("Warning: Could not set screensaver status: got status %d" % status, file=sys.stderr)
-
-            # Also manage screen blanking via DPMS
-            if must_disable:
-                # Get current DPMS status
-                pipe = os.popen("xset q")  # TODO: check if this works on all locales
-                dpms_status = "Disabled"
-                for line in pipe.readlines():
-                    if line.count("DPMS is") > 0:
-                        dpms_status = line.split()[-1]
-                        break
-                pipe.close()
-
-                # Set the new value correctly
-                if dpms_status == "Enabled":
-                    self.dpms_was_enabled = True
-                    status = os.system("xset -dpms")
-                    if status != 0:
-                        print("Warning: Could not disable DPMS screen blanking: got status %d" % status, file=sys.stderr)
-                else:
-                    self.dpms_was_enabled = False
-
-            elif self.dpms_was_enabled:
-                # Re-enable DPMS
-                status = os.system("xset +dpms")
-                if status != 0:
-                    print("Warning: Could not enable DPMS screen blanking: got status %d" % status, file=sys.stderr)
-        else:
-            print("Warning: Unsupported OS: can't enable/disable screensaver", file=sys.stderr)
-
     def switch_fullscreen(self, widget=None, event=None):
         """
         Switch the Content window to fullscreen (if in normal mode) or to normal
         mode (if fullscreen).
-
-        Screensaver will be disabled when entering fullscreen mode, and enabled
-        when leaving fullscreen mode.
         """
         if self.fullscreen:
             self.c_win.unfullscreen()
@@ -727,8 +676,6 @@ class UI:
         else:
             self.c_win.fullscreen()
             self.fullscreen = True
-
-        self.set_screensaver(self.fullscreen)
 
     def switch_mode(self, widget=None, event=None):
         """
