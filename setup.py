@@ -3,6 +3,7 @@
 #       setup.py
 #
 #       Copyright 2009 Thomas Jost <thomas.jost@gmail.com>
+#       Copyright 2014 Julien Enselme <jujens@jujens.eu>
 #
 #       This program is free software; you can redistribute it and/or modify
 #       it under the terms of the GNU General Public License as published by
