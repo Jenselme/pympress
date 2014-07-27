@@ -40,7 +40,6 @@ from gi.repository import Pango
 from gi.repository import GLib, GdkPixbuf
 from gi.repository import Gdk
 
-import pympress.pixbufcache
 import pympress.util
 
 #: "Regular" PDF file (without notes)
@@ -53,9 +52,6 @@ PDF_NOTES_PAGE = 2
 
 class UI:
     """Pympress GUI management."""
-
-    #: :class:`~pympress.pixbufcache.PixbufCache` instance.
-    cache = None
 
     #: Content window, as a :class:`Gtk.Window` instance.
     c_win = Gtk.Window(Gtk.WindowType.TOPLEVEL)
@@ -113,9 +109,6 @@ class UI:
         # Common to both windows
         icon_list = pympress.util.load_icons()
 
-        # Pixbuf cache
-        self.cache = pympress.pixbufcache.PixbufCache(doc)
-
         # Use notes mode by default if the document has notes
         self.notes_mode = doc.has_notes()
 
@@ -131,11 +124,6 @@ class UI:
         self.c_da.modify_bg(Gtk.StateFlags.NORMAL, black)
         self.c_da.connect("draw", self.on_expose)
         self.c_da.set_name("c_da")
-        if self.notes_mode:
-            self.cache.add_widget("c_da", pympress.document.PDF_CONTENT_PAGE)
-        else:
-            self.cache.add_widget("c_da", pympress.document.PDF_REGULAR)
-        self.c_da.connect("configure-event", self.on_configure)
 
         self.c_frame.add(self.c_da)
         self.c_win.add(self.c_frame)
@@ -236,11 +224,6 @@ class UI:
         self.p_da_cur.connect("draw", self.on_expose)
         self.p_da_cur.set_name("p_da_cur")
         self.p_da_cur.set_size_request(0, 400)  #FIXME: size of preview is fixed
-        if self.notes_mode:
-            self.cache.add_widget("p_da_cur", PDF_NOTES_PAGE)
-        else:
-            self.cache.add_widget("p_da_cur", PDF_REGULAR)
-        self.p_da_cur.connect("configure-event", self.on_configure)
         self.p_frame_cur.add(self.p_da_cur)
 
         # "Current slide" label and entry
@@ -268,11 +251,6 @@ class UI:
         self.p_da_next.connect("draw", self.on_expose)
         self.p_da_next.set_name("p_da_next")
         self.p_da_next.set_size_request(0, 290)  #FIXME: size of preview is fixed
-        if self.notes_mode:
-            self.cache.add_widget("p_da_next", PDF_CONTENT_PAGE)
-        else:
-            self.cache.add_widget("p_da_next", PDF_REGULAR)
-        self.p_da_next.connect("configure-event", self.on_configure)
         self.p_frame_next.add(self.p_da_next)
 
         # "Time elapsed" frame
@@ -398,8 +376,6 @@ class UI:
         cur = page_cur.number()
         page_max = min(self.doc.pages_number(), cur + 5)
         page_min = max(0, cur - 2)
-        for p in list(range(cur + 1, page_max)) + list(range(cur, page_min, -1)):
-            self.cache.prerender(p)
 
     def on_expose(self, widget, event=None):
         """
@@ -407,8 +383,7 @@ class UI:
 
         This callback may be called either directly on a page change or as an
         event handler by GTK. In both cases, it determines which widget needs to
-        be updated, and updates it, using the
-        :class:`~pympress.pixbufcache.PixbufCache` if possible.
+        be updated, and updates it.
 
         :param widget: the widget to update
         :type  widget: :class:`Gtk.Widget`
@@ -431,45 +406,12 @@ class UI:
                 widget.show_all()
                 parent.set_shadow_type(Gtk.ShadowType.IN)
 
-        # Instead of rendering the document to a Cairo surface (which is slow),
-        # use a pixbuf from the cache if possible.
-        name = widget.get_name()
-        nb = page.number()
-        pb = None  #FIXME: cache is not functionnal self.cache.get(name, nb)
-        wtype = self.cache.get_widget_type(name)
-
-        if pb is None:
-            # Cache miss: render the page, and save it to the cache
-            self.render_page(page, widget, wtype)
-            window = widget.get_window()
-            ww, wh = window.get_width(), window.get_height()
-            pb = GdkPixbuf.Pixbuf()
-            pb.new(GdkPixbuf.Colorspace.RGB, False, 8, ww, wh)
-            Gdk.pixbuf_get_from_window(window, 0, 0, ww, wh)
-            self.cache.set(name, nb, pb)
-        else:
-            # Cache hit: draw the pixbuf from the cache to the widget
-            window = widget.get_window()
-            cr = Gdk.cairo_create(window)
-            #Gdk.cairo_set_source_pixbuf(cr, pb, 0, 0)
-
-    def on_configure(self, widget, event):
-        """
-        Manage "configure" events for both windows.
-
-        In the GTK world, this event is triggered when a widget's configuration
-        is modified, for example when its size changes. So, when this event is
-        triggered, we tell the local :class:`~pympress.pixbufcache.PixbufCache`
-        instance about it, so that it can invalidate its internal cache for the
-        specified widget and pre-render next pages at a correct size.
-
-        :param widget: the widget which has been resized
-        :type  widget: :class:`Gtk.Widget`
-        :param event: the GTK event, which contains the new dimensions of the
-           widget
-        :type  event: :class:`Gdk.Event`
-        """
-        self.cache.resize_widget(widget.get_name(), event.width, event.height)
+        self.render_page(page, widget,)
+        window = widget.get_window()
+        ww, wh = window.get_width(), window.get_height()
+        pb = GdkPixbuf.Pixbuf()
+        pb.new(GdkPixbuf.Colorspace.RGB, False, 8, ww, wh)
+        Gdk.pixbuf_get_from_window(window, 0, 0, ww, wh)
 
     def on_navigation(self, widget, event):
         """
@@ -622,7 +564,7 @@ class UI:
         # Propagate the event further
         return False
 
-    def render_page(self, page, widget, wtype):
+    def render_page(self, page, widget):
         """
         Render a page on a widget.
 
@@ -634,8 +576,6 @@ class UI:
         :type  page: :class:`pympress.document.Page`
         :param widget: the widget on which the page must be rendered
         :type  widget: :class:`Gtk.DrawingArea`
-        :param wtype: the type of document to render
-        :type  wtype: integer
         """
 
         # Make sure the widget is initialized
@@ -656,7 +596,7 @@ class UI:
         window.begin_paint_rect(rect)
 
         cr = window.cairo_create()
-        page.render_cairo(cr, ww, wh, wtype)
+        page.render_cairo(cr, ww, wh)
 
         # Blit off-screen buffer to screen
         window.end_paint()
@@ -796,13 +736,7 @@ class UI:
         """
         if self.notes_mode:
             self.notes_mode = False
-            self.cache.set_widget_type("c_da", PDF_REGULAR)
-            self.cache.set_widget_type("p_da_cur", PDF_REGULAR)
-            self.cache.set_widget_type("p_da_next", PDF_REGULAR)
         else:
             self.notes_mode = True
-            self.cache.set_widget_type("c_da", PDF_CONTENT_PAGE)
-            self.cache.set_widget_type("p_da_cur", PDF_NOTES_PAGE)
-            self.cache.set_widget_type("p_da_next", PDF_CONTENT_PAGE)
 
         self.on_page_change(False)
