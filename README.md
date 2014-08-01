@@ -3,6 +3,11 @@ The special thing is that it is designed to be a dual-screen PDF reader used dur
 
 pympress is a free software, distributed under the terms of the GPL license (version 2 or, at your option, any later version).
 
+# Credit
+This version of pympress is a python3/GTK3 adaptation of the original [pympress](https://github.com/Schnouki/pympress) by Thomas Jost. I also deleted the cache mecanism from this version. I don't feel the need for it and it never worked properly.
+
 
 # Dependancies
-python3-gobject, python3-cairo, python3-setuptools
+- python3-gobject
+- python3-cairo
+- python3-setuptools
