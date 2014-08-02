@@ -57,8 +57,7 @@ def load_icons():
         except pkg_resources.DistributionNotFound:
             icon_fn = "share/pixmaps/{}".format(icon_name)
         try:
-            icon_pixbuf = Pixbuf()
-            icon_pixbuf.new_from_file(icon_fn)
+            icon_pixbuf = Pixbuf.new_from_file(icon_fn)
             icons.append(icon_pixbuf)
         except Exception as e:
             print(e)

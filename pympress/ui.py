@@ -30,8 +30,6 @@ current and the next page, as well as a time counter and a clock.
 Both windows are managed by the :class:`~pympress.ui.UI` class.
 """
 
-import os
-import sys
 import time
 
 import pkg_resources
@@ -118,7 +116,7 @@ class UI:
         self.c_win.set_default_size(1024, 728)
         self.c_win.modify_bg(Gtk.StateFlags.NORMAL, black)
         self.c_win.connect("delete-event", Gtk.main_quit)
-        #FIXME: self.c_win.set_icon_list(icon_list)
+        self.c_win.set_icon_list(icon_list)
 
         self.c_frame.modify_bg(Gtk.StateFlags.NORMAL, black)
 
@@ -139,7 +137,7 @@ class UI:
         p_win.set_default_size(1024, 728)
         p_win.set_position(Gtk.WindowPosition.CENTER)
         p_win.connect("delete-event", Gtk.main_quit)
-        #FIXME: p_win.set_icon_list(icon_list)
+        p_win.set_icon_list(icon_list)
 
         # Put Menu and Table in VBox
         bigvbox = Gtk.VBox(False, 2)
