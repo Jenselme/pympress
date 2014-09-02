@@ -23,7 +23,7 @@
 from setuptools import setup
 import glob
 
-version="0.3"
+version="0.4"
 
 setup(name="pympress",
       version=version,
