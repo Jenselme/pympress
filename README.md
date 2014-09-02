@@ -11,3 +11,4 @@ This version of pympress is a python3/GTK3 adaptation of the original [pympress]
 - python3-gobject
 - python3-cairo
 - python3-setuptools
+- pypoppler
