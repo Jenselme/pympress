@@ -34,10 +34,15 @@ elsewhere).
 
 from gi.repository import Poppler
 
-import pympress.ui
-import pympress.util
+try:
+    from pympress import ui
+    from pympress import util
 
-from pympress.ui import PDF_REGULAR, PDF_NOTES_PAGE
+    from pympress.ui import PDF_REGULAR, PDF_NOTES_PAGE
+except ImportError:
+    import ui
+    import util
+    from ui import PDF_REGULAR, PDF_NOTES_PAGE
 
 
 class Link:
@@ -117,7 +122,7 @@ class Page:
         # Read page size
         self.pw, self.ph = self.page.get_size()
 
-        if pympress.util.poppler_links_available():
+        if util.poppler_links_available():
             # Read links on the page
             link_mapping = self.page.get_link_mapping()
             self.links = []
@@ -277,7 +282,7 @@ class Document:
             self.notes = (ar >= 2)
 
         # Create windows
-        self.ui = pympress.ui.UI(self)
+        self.ui = ui.UI(self)
         self.ui.on_page_change(False)
         self.ui.run()
 

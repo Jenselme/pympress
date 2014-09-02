@@ -39,7 +39,10 @@ from gi.repository import Pango
 from gi.repository import GLib, GdkPixbuf
 from gi.repository import Gdk
 
-import pympress.util
+try:
+    from pympress import util
+except ImportError:
+    import util
 
 #: "Regular" PDF file (without notes)
 PDF_REGULAR = 0
@@ -106,7 +109,7 @@ class UI:
         black = Gdk.Color(0, 0, 0)
 
         # Common to both windows
-        icon_list = pympress.util.load_icons()
+        icon_list = util.load_icons()
 
         # Use notes mode by default if the document has notes
         self.notes_mode = doc.has_notes()
@@ -286,7 +289,7 @@ class UI:
         p_win.connect("scroll-event", self.on_navigation)
 
         # Hyperlinks if available
-        if pympress.util.poppler_links_available():
+        if util.poppler_links_available():
             self.c_da.add_events(Gdk.EventMask.BUTTON_PRESS_MASK |
                                     Gdk.EventMask.POINTER_MOTION_MASK)
             self.c_da.connect("button-press-event", self.on_link)

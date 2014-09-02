@@ -27,9 +27,12 @@ from gi.repository import Gtk
 
 from gi.repository import Gdk
 
-import pympress.document
+try:
+    from pympress import document
+except ImportError:
+    import document
 
-if __name__ == '__main__':
+def main():
     Gdk.threads_init()
 
     # PDF file to open
@@ -88,4 +91,8 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # Really open the PDF file
-    pympress.document.Document("file://" + name)
+    document.Document("file://" + name)
+
+
+if __name__ == '__main__':
+    main()

@@ -48,7 +48,7 @@ setup(name="pympress",
       packages=["pympress"],
     entry_points={
         'console_scripts': [
-        'pympress = main.py',
+            'pympress = pympress.main:main',
         ],
     },
 
