@@ -23,7 +23,7 @@
 -------------------------------------------------
 """
 
-import pkg_resources
+import glob
 import os, os.path
 from gi.repository import Poppler
 from gi.repository.GdkPixbuf import Pixbuf
@@ -39,13 +39,12 @@ def load_icons():
     :rtype: list of :class:`Gtk.gdk.Pixbuf`
     """
 
-    req = pkg_resources.Requirement.parse("pympress")
-
     # If pkg_resources fails, load from directory
-    try:
-        icon_names = pkg_resources.resource_listdir(req, "share/pixmaps")
-    except pkg_resources.DistributionNotFound:
-        icon_names = os.listdir("share/pixmaps")
+    icon_path = "/usr/share/pixmaps/"
+    icon_names = glob.glob(icon_path + "pympress*")
+    if not icon_names:
+        icon_path = "share/pixmaps/"
+        icon_names = glob.glob(icon_path + "pympress*")
     icons = []
     for icon_name in icon_names:
         if os.path.splitext(icon_name)[1].lower() != ".png":
@@ -53,11 +52,7 @@ def load_icons():
 
         # If pkg_resources fails, load from directory
         try:
-            icon_fn = pkg_resources.resource_filename(req, "share/pixmaps/{}".format(icon_name))
-        except pkg_resources.DistributionNotFound:
-            icon_fn = "share/pixmaps/{}".format(icon_name)
-        try:
-            icon_pixbuf = Pixbuf.new_from_file(icon_fn)
+            icon_pixbuf = Pixbuf.new_from_file(icon_name)
             icons.append(icon_pixbuf)
         except Exception as e:
             print(e)
