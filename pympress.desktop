@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Pympress
+GenericName=PDF reader
+Comment=Dual screen PDF reader
+Exec=pympress
+Icon=/usr/share/pixmap/pympress-32.png
+Terminal=false
+Type=Application
+Categories=Graphics;
